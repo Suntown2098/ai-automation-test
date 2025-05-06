@@ -1,0 +1,13 @@
+selenium~=4.32.0
+webdriver-manager==3.4.2
+flask
+requests~=2.32.3
+beautifulsoup4~=4.13.4
+markdownify~=1.1.0
+cachetools~=5.5.2
+openai~=1.77.0
+tiktoken
+python-dotenv~=1.1.0
+pydantic~=2.11.4
+pydantic-ai~=0.1.9
+dotenv~=0.9.9
