@@ -1,9 +1,9 @@
-import logging
-import time
+/import time
 import uuid
 from cachetools import TTLCache
 from src.selenium_utils import SeleniumUtils
 from src.dom_analyzer import DomAnalyzer
+from src.gpt_client import GptClient
 from src.config import MARKDOWN_INPUT, USER_PROMPT
 
 
@@ -16,11 +16,12 @@ class AgentProcessor:
         self.driver = None
         self.url = None
         self.dom_analyzer = DomAnalyzer()
+        self.model = GptClient()
 
         self.selenium_utils = SeleniumUtils()
         self.selenium_utils.connect_driver(url)
 
-    def parse_user_prompt(self, user_prompt, markdown):
+    def generate_prompt(self, user_prompt, markdown):
         user_content = USER_PROMPT.replace("@@@task@@@", user_prompt)
         markdown_content = MARKDOWN_INPUT.replace("@@@markdown@@@", markdown)
         return user_content + "\n" + markdown_content
@@ -31,21 +32,20 @@ class AgentProcessor:
     def execute_non_cached_prompt(self, action):
         pass
 
-    def execute_prompt(self, prompt):
-        if prompt == "":
+    def execute_task(self, task: str) -> None:
+        if task == "":
             print("Empty prompt.")
             return True
 
         session_id = str(uuid.uuid4())
-
-        accumulated_actions = []
         current_step = 0
-
-        last_action = None
         consecutive_action_count = 1
         consecutive_failure_count = 0
-        is_duplicate = False
-        is_valid = True
+        is_duplicate_step = False
+        is_valid_step = True
+        step = None
+        last_step = None
+        accumulated_steps = []
 
         while True:
             # Nếu lặp lai TestSteps >5  lần hoặc Error > 5 lần hoặc thực hiện hơn 100 TestSteps thì dừng
@@ -58,39 +58,54 @@ class AgentProcessor:
 
             # Gán id tự động cho các phần tử trong DOM
             self.selenium_utils.assign_auto_generated_ids()
-
+            
             # Lấy DOM hiện tại
             visible_dom = self.selenium_utils.get_visible_dom()
 
-            if not visible_dom:
-                raise Exception("Failed to get visible DOM")
+            markdown = self.dom_analyzer.convert_to_md(visible_dom)
 
+            # if not visible_dom:
             # Set metadata cho DOM
-            dom_metadata = self.dom_analyzer.set_metadata(visible_dom)
-
             # Nếu metadata đã có trong cache thì lấy từ cache
-            if dom_metadata in self.dom_cache:
-                pass
-            else:
-                # Lưu DOM metadata vào cache
-                self.dom_cache[dom_metadata] = visible_dom
 
-                # Summarize DOM
-                dom_summary = self.dom_analyzer.summarize_dom(visible_dom)
+            try:
+                # Tạo prompt và gọi LLM
+                user_prompt = self.generate_prompt(self, task, markdown)
+                step = self.model.get_action(user_prompt)
+            except Exception as ex:
+                raise Exception("AgentProcessor.execute_task -> Failed to get model response")
 
-                try:
-                    # Lấy LLM response for next action
-                    response = self.dom_analyzer.get_actions(session_id, prompt, visible_dom, accumulated_actions,
-                                                             is_duplicate, is_valid, last_action)
-
-                except Exception as ex:
-                    logging.error("Failed to get Action from Generative AI model: %s", ex)
-                    raise Exception("Failed to get Action from Generative AI model")
-
-            if not response.steps:
+            # Kiểm tra llm response có follow TestStep structure không? 
+            if not step: ## Nếu có (action == None) thì tăng consecutive_failure_count và retry
                 consecutive_failure_count += 1
                 last_action = None
                 continue
+            else: 
+                # Kiểm tra is first action?
+                if not len(last_step):
+                    consecutive_action_count = 1
+                    is_duplicate_step = False
+                else:
+                    # Nếu not first action (len action_chain > 0) thì kiểm tra is duplicate step?
+                    if accumulated_steps[-1].action == step.action:
+                        consecutive_action_count += 1
+                        is_duplicate_step = True
+                        current_step += 1
+                        continue
+                
+                execute_result = self.selenium_utils.execute_action_for_prompt(step) # Thực hiện action
+
+                # Kiểm tra execute_result?
+                if execute_result == 0: ## Nếu execute_result lỗi thì xóa accumulated_steps
+                    accumulated_steps = []
+                    break 
+                elif execute_result == 2:
+                    consecutive_failure_count += 1
+                    last_action = None
+                    continue
+                consecutive_failure_count = 0
+
+                accumulated_steps.append(step) # Add vào step chain
 
 
 

@@ -2,15 +2,15 @@ import threading
 import os
 import logging
 from pathlib import Path
-from typing import List, Optional
-from openai import OpenAI
-from pydantic import BaseModel
+from typing import List, Literal, Optional
+import requests
+import json
+from pydantic import BaseModel, ValidationError, validator
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.providers.openai import OpenAIProvider
 from src.config import SYSTEM_PROMPT
-import requests
-import json
+
 from dotenv import load_dotenv
 
 # Configure logging
@@ -31,7 +31,7 @@ class GptClient:
         self.system_prompt = SYSTEM_PROMPT
         # self.operation_lock = threading.Lock()
 
-    def make_request(self, user_prompt: str):
+    def get_action(self, user_prompt: str):
         # Instantiate OpenAI client
         gpt_model = OpenAIModel( model_name='o4-mini', provider=OpenAIProvider(api_key=self.gpt_api_key))
 
@@ -45,21 +45,37 @@ class GptClient:
         return result
 
 
-class TokenLimitExceededError(Exception):
-    """GPT token limit exceeded"""
-    pass
-
-
-class RateLimitExceededError(Exception):
-    """GPT token limit exceeded"""
-    pass
-
-
 class TestStep(BaseModel):
-    action: str
+    action: Literal["click", "enter_text", "key_enter", "scroll", "error", "finish"]
     css_selector: str
     text: str
     description: str
 
 
+class Model:
+    def __init__(self, gpt_api_key, system_prompt):
+        self.gpt_api_key = gpt_api_key
+        self.system_prompt = system_prompt
 
+    def get_action(self, user_prompt: str) -> Optional[TestStep]:
+        # Instantiate OpenAI client
+        gpt_model = OpenAIModel(
+            model_name='o4-mini',
+            provider=OpenAIProvider(api_key=self.gpt_api_key)
+        )
+
+        # Create a new agent
+        agent = Agent(
+            gpt_model,
+            output_type=TestStep,
+            system_prompt=self.system_prompt
+        )
+        try:
+            result = agent.run_sync(user_prompt)
+            return result 
+        except ValidationError as e:
+            print("Model.get_action -> Validation error:", e)
+            return None
+        except Exception as e:
+            print("Model.get_action -> An error occurred:", e)
+            return e

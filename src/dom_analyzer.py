@@ -6,6 +6,12 @@ import re
 import logging
 import time
 import json
+from bs4 import BeautifulSoup, Comment
+from markdownify import markdownify as md
+import re
+import sys
+import logging
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -274,7 +280,7 @@ class DomAnalyzer:
         logging.info("Was not able to find removable items")
         return False
 
-    def clean_markdown(markdown):
+    def clean_markdown(self, markdown):
         # Remove base64 encoded images
         cleaned_markdown = re.sub(r'!\[[^\]]*\]\(data:image\/[a-zA-Z]+;base64,[^\)]+\)', '', markdown)
 
@@ -286,7 +292,7 @@ class DomAnalyzer:
 
         return cleaned_markdown
 
-    def convert_to_md(html_doc):
+    def convert_to_md(self, html_doc):
 
         soup = BeautifulSoup(html_doc, 'html.parser')
 

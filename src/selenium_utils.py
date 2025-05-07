@@ -1,5 +1,4 @@
 import textwrap
-import logging
 from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
@@ -35,20 +34,17 @@ class SeleniumUtils:
     def connect_driver(self, url):
         self.url = url
         try:
-            # Open the website
             self._load_initial_page()
         except Exception as e:
             if self.driver:
-                print("Disconnecting driver")
+                print("SeleniumUtils.connect_driver -> Disconnecting driver")
                 self.driver.quit()
             raise e
 
     def close_local_driver(self):
         if self.driver is None:
-            # Log an info message if self.driver is already None
-            logging.info("The driver is already closed.")
+            print("SeleniumUtils.close_local_driver -> The driver is already closed.")
         else:
-            # Only attempt to quit and set to None if self.driver is not None
             self.driver.quit()
             self.driver = None
 
@@ -63,7 +59,7 @@ class SeleniumUtils:
     def _click_element(self, css_selector):
         try:
             self.driver.find_element(By.CSS_SELECTOR, css_selector).click()
-            logging.info("SELENIUM: clicked on the element with the css id: " + css_selector)
+            print("SeleniumUtils._click_element -> css id: " + css_selector)
         except:
             raise NoSuchElementException("SELENIUM: Could not click on the element with the CSS id: " + css_selector)
 
@@ -71,13 +67,11 @@ class SeleniumUtils:
         try:
             element = self.driver.find_element(By.CSS_SELECTOR, css_selector)
             element.send_keys(text)
-            logging.info(
-                "SELENIUM: entered the following text in the element with the css id: " + css_selector + "    text: " + text)
+            print("SeleniumUtils._enter_text_in_element -> css id: " + css_selector)
         except:
-            raise NoSuchElementException(
-                "SELENIUM: Could not enter text in the element with the CSS id: " + css_selector)
+            raise NoSuchElementException("SELENIUM: Could not enter text in the element with the CSS id: " + css_selector)
 
-    def execute_action_for_prompt(self, content):
+    def execute_action_for_prompt(self, content) -> int: # 0: error, 1: success, 2: finish
         try:
             if content.action == "click":
                 self._assert_css_selector_exists(content)
@@ -92,22 +86,21 @@ class SeleniumUtils:
                 actions.send_keys(Keys.ENTER).perform()
 
             elif content.action == "error":
-                return False
+                return 0
 
             elif content.action == "scroll":
                 self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
 
             elif content.action == "finish":
-                return False
+                return 2
 
-            return True
+            return 1
 
         except NoSuchElementException as ex:
-            print(f"Failed to find element {content.css_selector}: {ex}")
-            raise Exception(
-                "Failed to execute action, Generative AI returned invalid action")
+            print(f"SeleniumUtils.execute_action_for_prompt -> Failed to find element {content.css_selector}: {ex}")
+            raise Exception("Failed to execute action, Generative AI returned invalid action")
         except Exception as ex:
-            print(f"Failed to execute prompt action: {ex}")
+            print(f"SeleniumUtils.execute_action_for_prompt -> Failed to execute prompt action: {ex}")
             raise Exception("Failed to execute action generative AI action")
 
     def assign_auto_generated_ids(self):

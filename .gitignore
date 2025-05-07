@@ -1,0 +1,29 @@
+node_modules/
+dist/
+*.py[cod]
+*.log
+.env
+# Package files
+*.jar
+venv
+
+# Maven
+target/
+dist/
+
+#output
+scripts/data/output/*
+tests/online/logs/
+
+# Deployment
+deployment.yaml
+
+# JetBrains IDE
+.idea/
+
+.DS_Store
+Thumbs.db
+
+test_summaries
+
+.ipynb_checkpoints/
