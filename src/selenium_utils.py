@@ -7,8 +7,6 @@ from selenium.common.exceptions import WebDriverException, NoSuchElementExceptio
 from selenium.webdriver.common.action_chains import ActionChains
 from src.config import SYSTEM_PROMPT, MARKDOWN_INPUT, USER_PROMPT
 
-
-
 class SeleniumUtils:
     DRIVER_TIMEOUT_SECONDS = 120
     EMPTY_HTML_DOCUMENT = "<html><head></head><body></body></html>"
@@ -71,7 +69,7 @@ class SeleniumUtils:
         except:
             raise NoSuchElementException("SELENIUM: Could not enter text in the element with the CSS id: " + css_selector)
 
-    def execute_action_for_prompt(self, content) -> int: # 0: error, 1: success, 2: finish
+    def execute_action_for_prompt(self, content) -> bool:
         try:
             if content.action == "click":
                 self._assert_css_selector_exists(content)
@@ -85,16 +83,13 @@ class SeleniumUtils:
                 actions = ActionChains(self.driver)
                 actions.send_keys(Keys.ENTER).perform()
 
-            elif content.action == "error":
-                return 0
-
             elif content.action == "scroll":
                 self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
 
             elif content.action == "finish":
-                return 2
+                return False
 
-            return 1
+            return True
 
         except NoSuchElementException as ex:
             print(f"SeleniumUtils.execute_action_for_prompt -> Failed to find element {content.css_selector}: {ex}")

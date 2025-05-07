@@ -1,30 +1,6 @@
-from src.md_converter import convert_to_md
-from cachetools import TTLCache
-from src.gpt_client import GptClient, TokenLimitExceededError, RateLimitExceededError
-from src.config import SYSTEM_PROMPT, MARKDOWN_INPUT, USER_PROMPT
-import re
-import logging
 import time
-import json
 from bs4 import BeautifulSoup, Comment
 from markdownify import markdownify as md
-import re
-import sys
-import logging
-
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-def convert_keys_to_lowercase(data):
-    if isinstance(data, dict):
-        return {k.lower(): convert_keys_to_lowercase(v) for k, v in data.items()}
-    elif isinstance(data, list):
-        return [convert_keys_to_lowercase(item) for item in data]
-    else:
-        return data
-
 
 class DomAnalyzer:
     def __init__(self, cache_ttl=3600, cache_maxsize=1000):
@@ -186,99 +162,6 @@ class DomAnalyzer:
         if return_history is True:
             extracted_response['history'] = self.md_cache[session_id]
         return {"steps": [{"action": "Error", "text": "Failed to get action"}]}
-
-    def format_action(self, action):
-        if action is None:
-            return ""
-
-        if isinstance(action, str):
-            return action
-
-        if isinstance(action, dict):
-            return f"{{\"action\": \"{action['action']}\", \"css_selector\": \"{action['css_selector']}\", \"Text\": \"{action['text']}\", \"explanation\": \"{action['explanation']}\", \"description\": \"{action['description']}\"}}"
-
-        return str(action)
-
-    def resolve_follow_up(self, duplicate, valid, formatted, id_used, last_action,  executed_actions_str, task, variables_string):
-        if id_used is False:
-            return f"Please note that action {last_action} you provided does not use css id, the needed element has an id," \
-                   f" can you try again and provide the id as css_selector instead"
-        if formatted is False:
-            return f"Please note that the last action you provided is not in the required json format," \
-                   f" The output format should be {{\"steps\":[{{ \"action\":..,\"css_selector\":...., \"text\":..., \"explanation\":..., \"description\":...}}]}}, if task is achieved return finish action"
-
-        if valid is False:
-            return f"Please note that the last action you provided is invalid or not interactable in selenium," \
-                   f" so i need another way to perform the task"
-
-        if duplicate is True:
-            return f"Please note that the last action you provided is duplicate," \
-                   f" I need the next action to perform the task"
-
-        return f"Actions Executed so far are \n {executed_actions_str}\n " \
-               f"please provide the next action to achieve the task delimited by triple quotes:" \
-               f" \"\"\"{task} or return finish action if the task is completed\"\"\"\n {variables_string}"
-
-    def extract_steps(self, json_str):
-        try:
-            data = json.loads(json_str)
-            if 'steps' in data:
-                return convert_keys_to_lowercase(data)
-        except json.JSONDecodeError:
-            pass
-        pattern = r'(\{.*"steps".*\})'
-        matches = re.findall(pattern, json_str, re.DOTALL)
-
-        for match in matches:
-            try:
-                potential_json = match
-                parsed_json = json.loads(potential_json)
-                if 'steps' in parsed_json:
-                    return convert_keys_to_lowercase(parsed_json)
-            except json.JSONDecodeError as e:
-                continue
-
-        pattern = r'"steps":\s*\[(.*?\})\s*\]'
-        matches = re.findall(pattern, json_str, re.DOTALL)
-
-        # If matches are found, try to parse each one
-        if matches:
-            # Build a proper JSON string by enclosing the matched content in an array
-            for match in matches:
-                potential_json = '[' + match + ']'
-                try:
-                    # Attempt to parse the JSON
-                    parsed_json = json.loads(potential_json)
-                    # If successful, return the converted data
-                    return convert_keys_to_lowercase({'steps': parsed_json})
-                except json.JSONDecodeError as e:
-                    logging.debug(f"Failed to parse JSON for matched steps: {e}")
-                    continue
-
-        logging.debug("No valid 'steps' array found or all parsing attempts failed.")
-        return {}
-
-    def print_prompt(self, session_id):
-        logging.info("###########################################"
-                     "###########################################")
-        # logging.info(f"history: {self.log_cache[session_id]}")
-        logging.info("###########################################"
-                     "###########################################")
-
-    def clean_prompt(self, prompt_history):
-        # going to delete the first removable assistant/user prompt
-        logging.info("Going to clean prompt history")
-        if len(prompt_history) < 2:
-            logging.info("History is less than 2 objects, will not attempt to clear")
-
-        for i in range(len(prompt_history) - 1):
-            if (prompt_history[i]['role'] == 'assistant' and prompt_history[i + 1]['role'] == 'user'
-                 and prompt_history[i]['removable'] is True and prompt_history[i + 1]['removable'] is True):
-                logging.info(f"Going to delete [{prompt_history[i]},\n{prompt_history[i + 1]}]")
-                del prompt_history[i:i+2]
-                return True
-        logging.info("Was not able to find removable items")
-        return False
 
     def clean_markdown(self, markdown):
         # Remove base64 encoded images

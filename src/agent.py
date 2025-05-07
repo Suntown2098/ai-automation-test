@@ -1,6 +1,7 @@
-/import time
+import time
 import uuid
 from cachetools import TTLCache
+from pydantic import BaseModel, ValidationError, validator
 from src.selenium_utils import SeleniumUtils
 from src.dom_analyzer import DomAnalyzer
 from src.gpt_client import GptClient
@@ -21,30 +22,55 @@ class AgentProcessor:
         self.selenium_utils = SeleniumUtils()
         self.selenium_utils.connect_driver(url)
 
-    def generate_prompt(self, user_prompt, markdown):
+
+    def generate_prompt(self, user_prompt, markdown, is_valid, is_duplicate) -> str:
+        '''
+        1. Nếu is_valid_step = False thì generate resolving prompt 
+        2. Nếu is_duplicate_step = True thì generate resolving prompt
+        3. Nếu none of the above thì generate follow up prompt
+        '''
+        if is_valid == False:
+            pass
+
+        elif is_duplicate == True:
+            pass
+
         user_content = USER_PROMPT.replace("@@@task@@@", user_prompt)
         markdown_content = MARKDOWN_INPUT.replace("@@@markdown@@@", markdown)
         return user_content + "\n" + markdown_content
 
-    def execute_cached_prompt(self, user_prompt, markdown):
-        pass
+    def resolve_follow_up(self, duplicate, valid, formatted, id_used, last_action,  executed_actions_str, task, variables_string):
+        if id_used is False:
+            return f"Please note that action {last_action} you provided does not use css id, the needed element has an id," \
+                   f" can you try again and provide the id as css_selector instead"
+        if formatted is False:
+            return f"Please note that the last action you provided is not in the required json format," \
+                   f" The output format should be {{\"steps\":[{{ \"action\":..,\"css_selector\":...., \"text\":..., \"explanation\":..., \"description\":...}}]}}, if task is achieved return finish action"
 
-    def execute_non_cached_prompt(self, action):
-        pass
+        if valid is False:
+            return f"Please note that the last action you provided is invalid or not interactable in selenium," \
+                   f" so i need another way to perform the task"
+
+        if duplicate is True:
+            return f"Please note that the last action you provided is duplicate," \
+                   f" I need the next action to perform the task"
+
+        return f"Actions Executed so far are \n {executed_actions_str}\n " \
+               f"please provide the next action to achieve the task delimited by triple quotes:" \
+               f" \"\"\"{task} or return finish action if the task is completed\"\"\"\n {variables_string}"
 
     def execute_task(self, task: str) -> None:
         if task == "":
             print("Empty prompt.")
             return True
 
-        session_id = str(uuid.uuid4())
+        # session_id = str(uuid.uuid4())
         current_step = 0
         consecutive_action_count = 1
         consecutive_failure_count = 0
         is_duplicate_step = False
         is_valid_step = True
         step = None
-        last_step = None
         accumulated_steps = []
 
         while True:
@@ -69,102 +95,45 @@ class AgentProcessor:
             # Nếu metadata đã có trong cache thì lấy từ cache
 
             try:
-                # Tạo prompt và gọi LLM
-                user_prompt = self.generate_prompt(self, task, markdown)
+                user_prompt = self.generate_prompt(self, task, markdown, is_valid_step, is_duplicate_step) # Tạo prompt và gọi LLM
                 step = self.model.get_action(user_prompt)
-            except Exception as ex:
+            # except ValidationError as e: # llm response có follow TestStep structure không?
+            #     consecutive_failure_count += 1
+            #     continue
+            except Exception as e:
                 raise Exception("AgentProcessor.execute_task -> Failed to get model response")
+            
+            current_step += 1
 
-            # Kiểm tra llm response có follow TestStep structure không? 
-            if not step: ## Nếu có (action == None) thì tăng consecutive_failure_count và retry
-                consecutive_failure_count += 1
-                last_action = None
-                continue
-            else: 
-                # Kiểm tra is first action?
-                if not len(last_step):
-                    consecutive_action_count = 1
-                    is_duplicate_step = False
-                else:
-                    # Nếu not first action (len action_chain > 0) thì kiểm tra is duplicate step?
-                    if accumulated_steps[-1].action == step.action:
-                        consecutive_action_count += 1
-                        is_duplicate_step = True
-                        current_step += 1
-                        continue
-                
-                execute_result = self.selenium_utils.execute_action_for_prompt(step) # Thực hiện action
-
-                # Kiểm tra execute_result?
-                if execute_result == 0: ## Nếu execute_result lỗi thì xóa accumulated_steps
-                    accumulated_steps = []
-                    break 
-                elif execute_result == 2:
-                    consecutive_failure_count += 1
-                    last_action = None
-                    continue
-                consecutive_failure_count = 0
-
-                accumulated_steps.append(step) # Add vào step chain
-
-
-
-
-            index = 0
-
-            # Check if the last action is a duplicate
-            if last_action == response.steps[index]:
-                consecutive_action_count += 1
-                is_duplicate = True
-                if consecutive_action_count > 5:
-                    raise Exception("Generative AI is stuck at the same action, please try again")
-                index += 1
-                continue
-            else:
+            ######### START Update consecutive_action_count và is_duplicate_step #########
+            # Kiểm tra is first step và is duplicated step?
+            if not len(accumulated_steps) or accumulated_steps[-1].action != step.action:
                 consecutive_action_count = 1
-                is_duplicate = False
-
-            step = response.steps[index]
-            if step.action == "enter_text":
-                try:
-                    while not(0 <= index < len(response.steps) and response.steps[index].action == "enter_text"):
-                        step = response.steps[index]
-                        last_action = step
-                        self._execute_action_for_prompt(step)
-                        is_valid = True
-                        consecutive_failure_count = 0
-                        accumulated_actions.append(step)
-                        index += 1
-
-                    if index < len(response.steps) and response.steps[index].action == "key_enter":
-                        time.sleep(1)
-                        last_action = response.steps[index]
-                        self._execute_action_for_prompt(response.steps[index])
-                        is_valid = True
-                        consecutive_failure_count = 0
-                        accumulated_actions.append(step)
-                        index += 1
-
-                except Exception:
-                    is_valid = False
-                    consecutive_failure_count += 1
-                    continue
+                is_duplicate_step = False
             else:
-                try:
-                    last_action = step
-                    if not self._execute_action_for_prompt(step):
-                        break
-                    is_valid = True
-                    consecutive_failure_count = 0
-                    accumulated_actions.append(step)
-                except Exception:
-                    is_valid = False
-                    consecutive_failure_count += 1
-                    continue
+                consecutive_action_count += 1
+                is_duplicate_step = True
+                continue
+            ######### END Update consecutive_action_count và is_duplicate_step #########
+            
 
-            time.sleep(3)
+            ######### START Update consecutive_failure_count và is_valid_step #########
+            # Execute action, nếu báo lỗi thì retry
+            try:
+                is_finish = self.selenium_utils.execute_action_for_prompt(step) # Thực hiện action
+            except Exception:
+                is_valid_step = False
+                consecutive_failure_count += 1
+                continue
 
-        if not accumulated_actions:
+            # Kiểm tra execute_result?
+            if is_finish: ## Nếu là finish thì thoát while loop
+                break 
+
+            consecutive_failure_count = 0
+            is_valid_step = True
+            accumulated_steps.append(step)
+            ######### END Update consecutive_failure_count và is_valid_step #########
+                
+        if not len(accumulated_steps):
             raise Exception("No actions were executed")
-
-
