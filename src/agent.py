@@ -45,7 +45,7 @@ class AgentProcessor:
 
         # session_id = str(uuid.uuid4())
         current_step = 0
-        consecutive_action_count = 1
+        # consecutive_action_count = 1
         consecutive_failure_count = 0
         # is_duplicate_step = False
         is_valid_step = True
@@ -54,18 +54,21 @@ class AgentProcessor:
 
         while True:
             # Nếu lặp lai TestSteps >5  lần hoặc Error > 5 lần hoặc thực hiện hơn 100 TestSteps thì dừng
-            if consecutive_action_count > 5:
-                raise Exception("Generative AI is stuck at the same action, please try again")
+            # if consecutive_action_count > 5:
+            #     raise Exception("Generative AI is stuck at the same action, please try again")
             if consecutive_failure_count > 5:
                 raise Exception("Generative AI generated invalid actions consecutively, please try again")
             if current_step > 100:
                 break
 
             # Gán id tự động cho các phần tử trong DOM
+            # -> gán xpath
             self.selenium_utils.assign_auto_generated_ids()
             
             # Lấy DOM hiện tại
             visible_dom = self.selenium_utils.get_visible_dom()
+
+            all_xpaths = self.selenium_utils.get_all_xpaths()
 
             ### Hash DOM and save to cache -> Hash DOM ko work vì case: cùng 1 màn hình, sau khi chọn value cho field A thì value của field B sẽ biến đổi theo, nên cần lấy DOM mới liên tục
             # dom_hash = hashlib.sha256(visible_dom.encode('utf-8')).hexdigest()

@@ -148,3 +148,72 @@ class SeleniumUtils:
                 """).strip()
 
         return str(self.driver.execute_script(js_script))
+
+    def get_body_with_xpath(self, xpath):
+        try:
+            element = self.driver.find_element(By.XPATH, xpath)
+            return element.get_attribute('outerHTML')
+        except NoSuchElementException:
+            raise Exception(f"No element found with the provided XPath: {xpath}")
+
+    def get_all_xpaths(self):
+        try:
+            elements = self.driver.find_elements(By.XPATH, '//*')
+            xpaths = []
+            for element in elements:
+                try:
+                    xpath = self._get_element_xpath(element)
+                    xpaths.append(xpath)
+                except Exception:
+                    continue
+            return xpaths
+        except Exception as e:
+            raise Exception(f"Failed to retrieve all XPaths in the body: {e}")
+
+    def _get_element_xpath(self, element):
+        components = []
+        while element is not None and element.tag_name.lower() != 'html':
+            parent = element.find_element(By.XPATH, '..')
+            siblings = parent.find_elements(By.XPATH, f"./{element.tag_name}")
+            index = siblings.index(element) + 1 if len(siblings) > 1 else 1
+            components.append(f"{element.tag_name}[{index}]")
+            element = parent
+        components.reverse()
+        return f"/html/{'/'.join(components)}"
+
+    def get_full_xpath_and_text(self):
+        try:
+            elements = self.driver.find_elements(By.XPATH, '//*')
+            xpath_text_map = {}
+
+            for element in elements:
+                try:
+                    xpath = self._get_element_xpath(element)
+                    text = element.get_attribute('data-cy')
+                    if text:  # Only include elements with a 'data-cy' attribute
+                        xpath_text_map[text] = xpath
+                except Exception:
+                    continue
+
+            return xpath_text_map
+        except Exception as e:
+            raise Exception(f"Failed to retrieve full XPaths and text data: {e}")
+
+    def get_text_in_translate(self, element):
+        try:
+            # Locate the span element with the 'translate' attribute inside the given element
+            translate_element = element.find_element(By.XPATH, ".//span[@translate]")
+            return translate_element.text
+        except NoSuchElementException:
+            raise Exception("No element with 'translate' attribute found inside the given element.")
+
+    def assign_id_by_xpath(self, xpath, new_id):
+        try:
+            # Locate the element using the provided XPath
+            element = self.driver.find_element(By.XPATH, xpath)
+            # Use JavaScript to set the new ID for the element
+            self.driver.execute_script("arguments[0].id = arguments[1];", element, new_id)
+        except NoSuchElementException:
+            raise Exception(f"No element found with the provided XPath: {xpath}")
+        except Exception as e:
+            raise Exception(f"Failed to assign ID to the element: {e}")
