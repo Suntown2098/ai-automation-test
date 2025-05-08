@@ -5,7 +5,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
-from src.config import SYSTEM_PROMPT, MARKDOWN_INPUT, USER_PROMPT
 
 class SeleniumUtils:
     DRIVER_TIMEOUT_SECONDS = 120
