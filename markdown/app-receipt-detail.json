@@ -1,0 +1,54 @@
+{
+  "name": "View Receipt Detail",
+  "description": "Detailed screen for viewing and editing receipt data, including line item grid and multiple information tabs.",
+  "sections": [
+    {
+      "name": "Tabs Header",
+      "description": "Header tabs for different sections of receipt detail",
+      "elements": [
+        {
+          "label": "GENERAL",
+          "id": "IDf1beca90-44c7-4103-9ad9-d693cf8cb4cf",
+          "description": "General info tab",
+          "element_type": "tab",
+          "children": [
+            { "label": "OWNER", "id": "mat-select-78", "description": "Dropdown select for owner", "element_type": "dropdown" },
+            { "label": "TYPE", "id": "mat-select-79", "description": "Dropdown for receipt type", "element_type": "dropdown" },
+            { "label": "CUSTOMER PO", "id": "mat-input-294", "description": "Text input for customer PO", "element_type": "input-text" },
+            { "label": "PO", "id": "mat-input-295", "description": "Text input for PO", "element_type": "input-date" },
+            { "label": "INVOICE DATE", "id": "mat-input-370", "description": "Date picker", "element_type": "input-date" },
+            { "label": "INVOICE NO", "id": "mat-input-303", "description": "Invoice number text input", "element_type": "input-text" }
+          ]
+        },
+        {
+          "label": "CARRIER",
+          "id": "ID82b52750-4ae8-43b4-8e9c-c24ac67b0cb8",
+          "description": "Carrier info tab",
+          "element_type": "tab",
+          "children": [
+            { "label": "CARRIER CODE", "id": "mat-input-320", "description": "Code of carrier", "element_type": "input-text" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Line Item Grid",
+      "description": "Grid section for line items",
+      "elements": [
+        { "label": "GRID ADD BUTTON", "id": "table-button-add", "description": "Adding new line item in grid", "element_type": "button" },
+        { "label": "NGÀY SẢN XUẤT", "id": "datetime-picker-lottable04", "description": "Manufacturer date", "element_type": "input-date" },
+        { "label": "TRANSACTION TYPE", "id": "value-select-transactiontype", "description": "Type of the inbound transaction", "element_type": "dropdown" },
+        { "label": "QTY", "id": "table-input-unitnetwgt", "description": "Received Quantity", "element_type": "input-text" }
+      ]
+    },
+    {
+      "name": "Action Buttons",
+      "description": "Primary and dropdown action buttons for manipulating receipt line items.",
+      "elements": [
+        { "label": "DELETE", "id": "button-Delete", "description": "Delete line items", "element_type": "button" },
+        { "label": "TASK DETAIL", "id": "button-Task Detail", "description": "View task details", "element_type": "button" },
+        { "label": "SAVE", "id": "button-Save", "description": "Save current form", "element_type": "button" }
+      ]
+    }
+  ]
+}

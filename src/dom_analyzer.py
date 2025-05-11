@@ -196,10 +196,19 @@ class DomAnalyzer:
             if 'style' in tag.attrs:
                 del tag['style']
 
+        # for li in soup.find_all('li'):
+        #     a = li.find('a')
+        #     if a:
+        #         li.replace_with(a)
+
+        # Find all <a> tags that are deeper inside the <li>
         for li in soup.find_all('li'):
-            a = li.find('a')
-            if a:
-                li.replace_with(a)
+            a_tags = li.find_all('a')
+            if a_tags:
+                # Replace <li> with all its <a> descendants
+                for a in reversed(a_tags):
+                    li.insert_after(a)
+                li.decompose()
 
         for tag in soup.find_all(['li', 'button', 'input', 'textarea', 'a'], id=True):
             # Exclude hidden elements

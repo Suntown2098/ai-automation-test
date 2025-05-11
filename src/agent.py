@@ -1,18 +1,18 @@
 import time
 import uuid
 import hashlib
-from cachetools import TTLCache
-from src.selenium_utils import SeleniumUtils
-from src.dom_analyzer import DomAnalyzer
-from src.model import Model
-from src.config import MARKDOWN_INPUT, DEFAULT_USER_PROMPT, FOLLOW_UP_PROMPT, RESOLVE_DUPLICATED_STEP_PROMPT, RESOLVE_INVALID_STEP_PROMPT
+# from cachetools import TTLCache
+from selenium_utils import SeleniumUtils
+from dom_analyzer import DomAnalyzer
+from model import Model
+from config import MARKDOWN_INPUT, DEFAULT_USER_PROMPT, FOLLOW_UP_PROMPT, RESOLVE_DUPLICATED_STEP_PROMPT, RESOLVE_INVALID_STEP_PROMPT
 
 
 class AgentProcessor:
     def __init__(self, url):
-        self.cache_test_case = TTLCache(maxsize=1000, ttl=3600) # {'<module>, <view>, <button>', <steps>, <result>}
-        self.log_cache = TTLCache(maxsize=1000, ttl=3600)
-        self.dom_cache = TTLCache(maxsize=1000, ttl=3600) # {<task_id>, <dom_metadata>, <dom>}
+        # self.cache_test_case = TTLCache(maxsize=1000, ttl=3600) # {'<module>, <view>, <button>', <steps>, <result>}
+        # self.log_cache = TTLCache(maxsize=1000, ttl=3600)
+        # self.dom_cache = TTLCache(maxsize=1000, ttl=3600) # {<task_id>, <dom_metadata>, <dom>}
 
         self.dom_analyzer = DomAnalyzer()
         self.model = Model()
@@ -68,8 +68,6 @@ class AgentProcessor:
             # Lấy DOM hiện tại
             visible_dom = self.selenium_utils.get_visible_dom()
 
-            all_xpaths = self.selenium_utils.get_all_xpaths()
-
             ### Hash DOM and save to cache -> Hash DOM ko work vì case: cùng 1 màn hình, sau khi chọn value cho field A thì value của field B sẽ biến đổi theo, nên cần lấy DOM mới liên tục
             # dom_hash = hashlib.sha256(visible_dom.encode('utf-8')).hexdigest()
             # if dom_hash not in self.dom_cache:
@@ -82,7 +80,7 @@ class AgentProcessor:
 
             try:
                 user_prompt = self.generate_prompt(task, markdown, is_valid_step, accumulated_steps, last_step) # Tạo prompt và gọi LLM
-                step = self.model.get_action(user_prompt)
+                list_steps = self.model.get_action(user_prompt)
             except Exception as e:
                 raise Exception("AgentProcessor.execute_task -> Failed to get model response")
             
@@ -102,22 +100,27 @@ class AgentProcessor:
 
             ######### START Update consecutive_failure_count và is_valid_step #########
             # Execute action, nếu báo lỗi thì retry
-            try:
-                continue_execute = self.selenium_utils.execute_action_for_prompt(step) # Thực hiện action
-            except Exception:
-                is_valid_step = False
-                consecutive_failure_count += 1
-                continue
+            print("\n\nTask: ", task)
+            for step in list_steps.steps:
+                print("step: ", step)
+                try:
+                    continue_execute = self.selenium_utils.execute_action_for_prompt(step) # Thực hiện action
+                except Exception:
+                    is_valid_step = False
+                    consecutive_failure_count += 1
+                    break
 
-            # Kiểm tra execute_result?
-            if not continue_execute: ## Nếu là finish thì thoát while loop
-                break 
+                consecutive_failure_count = 0
+                is_valid_step = True
+                accumulated_steps.append(step)
+                last_step = step
 
-            consecutive_failure_count = 0
-            is_valid_step = True
-            accumulated_steps.append(step)
-            last_step = step
+                                # Kiểm tra execute_result?
+                if not continue_execute: ## Nếu là finish thì thoát while loop
+                    return None
             ######### END Update consecutive_failure_count và is_valid_step #########
                 
         if not len(accumulated_steps):
             raise Exception("No actions were executed")
+
+        return None

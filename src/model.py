@@ -1,25 +1,34 @@
 import os
 from pathlib import Path
-from typing import List, Literal, Optional
+from typing import List, Dict, Any, Literal, Optional
 import time
+import logging
 from pydantic import BaseModel, ValidationError, validator
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.providers.openai import OpenAIProvider
-from src.config import DEFAUL_SYSTEM_PROMPT
+from config import DEFAUL_SYSTEM_PROMPT
 from dotenv import load_dotenv
 
 
-class TestStep(BaseModel):
-    action: Literal["click", "enter_text", "key_enter", "scroll", "error", "finish"]
-    css_selector: str
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
+class Step(BaseModel):
+    action: Literal["click", "text-enter", "key_enter", "scroll", "error", "finish"]
+    element_id: str
     text: str
+    component_name: str
     description: str
 
-    def __eq__(self, other):
-        if not isinstance(other, TestStep):
-            return NotImplemented
-        return self.action == other.action and self.text == other.text
+class TestSteps(BaseModel):
+    steps: List[Step]
+
+class MarkdownFile(BaseModel):
+    markdown_description: str
+    content: str
+    explanation: Optional[str] = None
 
 
 class Model:
@@ -33,7 +42,7 @@ class Model:
     def __init__(self):
         self.system_prompt = DEFAUL_SYSTEM_PROMPT
 
-    def get_action(self, user_prompt: str) -> Optional[TestStep]:
+    def get_action(self, user_prompt: str) -> Optional[TestSteps]:
         # Instantiate OpenAI client
         llm_model = OpenAIModel(
             model_name='o4-mini',
@@ -43,7 +52,7 @@ class Model:
         # Create a new agent
         agent = Agent(
             llm_model,
-            output_type=TestStep,
+            output_type=TestSteps,
             system_prompt=self.system_prompt
         )
 
