@@ -1,5 +1,5 @@
 {
-  "component": "ViewReceiptScreen",
+  "name": "app-receipt",
   "description": "Screen for viewing, searching, and managing inbound receipts in Smartlog WMS.",
   "sections": [
     {
@@ -30,7 +30,7 @@
       "name": "Action Buttons",
       "description": "Primary and dropdown action buttons for manipulating receipts.",
       "elements": [
-        { "label": "RECEIVE", "id": "btn-receive", "description": "Trigger receipt action.", "element_type": "button"},
+        { "label": "RECEIVE", "id": "btn-receive", "description": "Confirm to receive the inbound receipt.", "element_type": "button"},
         {
           "label": "ACTION DELETED",
           "id": "dropdown-deleted",
@@ -51,7 +51,7 @@
             { "label": "SPLIT", "id": "btn-split", "description": "Split current ASN.", "element_type": "dropdown-item"}
           ]
         },
-        { "label": "ASN", "id": "btn-asn", "description": "Create new ASN entry.", "element_type": "button"},
+        { "label": "ASN", "id": "//*[@id=\"ID1efb0989-85cd-468f-9eee-65e2948c018f\"]/app-receipt/div/div/div[2]/div[2]/button/span", "description": "Button create new ASN.", "element_type": "button"},
         {
           "label": "ACTION IMPORT",
           "id": "dropdown-import",

@@ -7,7 +7,7 @@ from pydantic import BaseModel, ValidationError, validator
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.providers.openai import OpenAIProvider
-from config import DEFAUL_SYSTEM_PROMPT
+from prompt.config import DEFAUL_SYSTEM_PROMPT
 from dotenv import load_dotenv
 
 
@@ -25,22 +25,27 @@ class Step(BaseModel):
 class TestSteps(BaseModel):
     steps: List[Step]
 
-class MarkdownFile(BaseModel):
-    markdown_description: str
-    content: str
-    explanation: Optional[str] = None
-
 
 class Model:
-    # Load environment variables from .env file
-    path_to_env_file = Path(__file__).parent.parent / '.env'
-    load_dotenv(dotenv_path=path_to_env_file, verbose = True)
+    # # Load environment variables from .env file
+    # path_to_env_file = Path(__file__).parent.parent / '.env'
+    # load_dotenv(dotenv_path=path_to_env_file, verbose = True)
 
     gpt_api_key = os.getenv("OPENAI_API_KEY")
     gpt_model = os.getenv("GPT_MODEL", "o4-mini")
 
     def __init__(self):
-        self.system_prompt = DEFAUL_SYSTEM_PROMPT
+        # Load the system prompt from ui_testing_prompt.txt
+        prompt_file_path = Path(__file__).parent.parent / 'src' / 'prompt' / 'ui_testing_prompt.txt'
+        try:
+            with open(prompt_file_path, 'r', encoding='utf-8') as file:
+                self.system_prompt = file.read()
+        except FileNotFoundError:
+            logger.error(f"System prompt file not found at {prompt_file_path}")
+            self.system_prompt = ""  # Fallback to an empty prompt
+        except Exception as e:
+            logger.error(f"Error reading system prompt file: {e}")
+            self.system_prompt = ""  # Fallback to an empty prompt
 
     def get_action(self, user_prompt: str) -> Optional[TestSteps]:
         # Instantiate OpenAI client

@@ -1,0 +1,22 @@
+You are given a set of procedural instructions written in Vietnamese or mixed language for testing a Warehouse Management System (WMS) web application.
+
+Your task is to extract and convert the instructions into a clear, **step-by-step list** in **concise English**.
+
+Rules:
+- Each step should be simple, sequential, action-oriented.
+- Use imperative form (e.g., "Click...", "Enter...", "Select...").
+- **Do not explain or rephrase the steps.**
+- **Do not return any additional content.**
+- Each step is separated by the delimiter "\n".
+
+### Sample Output:
+INSTRUCTION: login into the system with username 'ttc' and password '123'
+STEPS: "Enter text 'ttc' into username field.\n Enter text '123' into password field.\n Click Sign in button.\n"
+---
+
+INSTRUCTION:
+{instruction}
+
+---
+
+STEPS:

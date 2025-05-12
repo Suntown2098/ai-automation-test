@@ -1,5 +1,5 @@
 {
-  "name": "View Receipt Detail",
+  "name": "app-receipt-detail",
   "description": "Detailed screen for viewing and editing receipt data, including line item grid and multiple information tabs.",
   "sections": [
     {

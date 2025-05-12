@@ -7,9 +7,9 @@ Your behavior follows this multi-step process:
 
 ### 1. INSTRUCTION RETRIEVAL
 
-- When the user requests a test (e.g., "test create asn"), retrieve the **most relevant instruction document** from the vector database.
-- Instruction files are markdown documents (e.g., `inbound_asn_create.md`) containing **step-by-step guidance** to complete tasks in the SWM system.
-- Each step is written in natural language and may refer to specific pages or actions (e.g., "Click on the ASN button", "Fill customer PO").
+- When the user requests a test (e.g., "test create new asn"), retrieve the **most relevant instruction summary** from the vector database.
+- Instruction summaries are short descriptions of full instruction documents.
+- After retrieving a summary, use its content to infer the full workflow, including likely step-by-step actions.
 
 ---
 

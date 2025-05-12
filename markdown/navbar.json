@@ -1,6 +1,6 @@
 {
     "name": "Navbar",
-    "description": "Top navigation structure for Smartlog WMS, including modules INBOUND and OUTBOUND with their dropdown items.",
+    "description": "Top navigation structure for Smartlog WMS, including modules INBOUND, including submodules: PURCHASE ORDER, ASN/RECEIPT .",
     "sections": [
         {
             "name": "NAVBAR",
@@ -8,12 +8,12 @@
             "elements": [
                 { 
                     "label": "INBOUND", 
-                    "id": "navbarDropdown-inbound", 
+                    "id": "//*[@id=\"navbarDropdown\"]/i", 
                     "description": "Parent menu item for inbound logistics operations.", 
                     "element_type": "dropdown",
                     "children": [
                         { "label": "PURCHASE ORDER", "id": "inbound-purchase-order", "description": "Manage purchase orders.", "element_type": "dropdown-item"},
-                        { "label": "ASN/RECEIPT", "id": "inbound-asn-receipt", "description": "Advanced Shipment Notice and Receipt entry.", "element_type": "dropdown-item"},
+                        { "label": "ASN/RECEIPT", "id": "//*[@id=\"navbarSupportedContent\"]/ul[1]/li[4]/div/a[2]/span", "description": "Advanced Shipment Notice and Receipt entry.", "element_type": "dropdown-item"},
                         { "label": "TASK DETAIL", "id": "inbound-task-detail", "description": "Details of inbound operations per task.", "element_type": "dropdown-item"},
                         { "label": "INBOUND REPORT", "id": "inbound-report", "description": "Reporting dashboard for inbound.", "element_type": "dropdown-item"},
                         { "label": "ONE VIEW RECEIPT", "id": "inbound-one-view-receipt", "description": "Unified receipt view across all sources.", "element_type": "dropdown-item"},

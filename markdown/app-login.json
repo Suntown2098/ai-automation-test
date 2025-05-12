@@ -8,19 +8,19 @@
         "elements": [
           {
             "label": "Username",
-            "id": "input-username",
+            "id": "/html/body/app-root/div/app-login/div/div/div/div/form/input[1]",
             "description": "Input field for the user's login name or email.",
             "element_type": "input-text"
           },
           {
             "label": "Password",
-            "id": "input-password",
+            "id": "/html/body/app-root/div/app-login/div/div/div/div/form/input[2]",
             "description": "Input field for password entry with masked characters.",
             "element_type": "input-password"
           },
           {
             "label": "Sign In Button",
-            "id": "btn-login",
+            "id": "/html/body/app-root/div/app-login/div/div/div/div/form/button",
             "description": "Button to trigger login request. Disabled until form is valid.",
             "element_type": "button"
           }

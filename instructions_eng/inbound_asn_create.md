@@ -1,3 +1,7 @@
+
+-
+login with username 'tbs-qa' and password '123'
+-
 Selects the INBOUND Module, then selects the ASN/Receipt menu to access the Receipt List function screen. Next, on this Receipt function screen, the user will create a new purchase order (with New status) as follows:
 - On the Receipt function screen, the user will click on the ASN function button for the system to create a new order and transfer to the Receipt Detail screen.
 - Here, the user enters the necessary information for the Header section. Required fields will be marked with an asterisk (*).

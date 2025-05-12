@@ -1,0 +1,10 @@
+# Cách tạo đơn hàng nhập
+- Đăng nhập vào hệ thống với username 'ttc-thao' và password '123'
+- Người dùng chọn Module INBOUND, sau đó chọn menu ASN/Receipt để vào màn hình chức năng tạo đơn hàng nhập Receipt List.
+- Tiếp theo tại màn hình chức năng Receipt này, người dùng sẽ tạo đơn hàng nhập mới bằng cách sau:
+- Tại màn hình chức năng Receipt, người dùng sẽ ấn vào nút chức năng  để hệ thống tạo ra một đơn hàng mới và chuyển sang màn hình Receipt Detail.
+- Tại đây, người dùng nhập các thông tin cần thiết cho phần Header. Các trường bắt buộc nhập sẽ có dấu (*).
+- Để nhập thông tin phần Detail của đơn hàng nhập, người dùng thao tác lần lượt như sau:
+    - Nhấn vào dấu cộng  (thêm mới LPN) để tạo một dòng mới (LPN mới). 
+    - Nhập đầy đủ các thông tin cho LPN. Các thông tin bắt buộc nhập vào sẽ có dấu (*). 
+    - Sau đó nhấn nút chức năng Lưu bên góc phải trên màn hình để lưu lại các thông tin vừa nhập vào.

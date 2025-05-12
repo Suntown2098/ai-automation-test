@@ -3,23 +3,27 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 import time
-from agent import AgentProcessor
-
+from task_executor import TaskExecutor
 
 def main():
-    test_url = "https://swm.danghung.xyz/login/"
+    test_url = "https://swm-dev.smartlogvn.com/"
 
     try:
-        processor = AgentProcessor(test_url)
+        processor = TaskExecutor(test_url)
 
         # Test steps
-        processor.execute_task("login with username 'tbs-qa' and password '123'")
-        time.sleep(1)
-        processor.execute_task("go to module inbound and click on view asn/receipt")
-        time.sleep(1)
-        processor.execute_task("click button 'asn' to create new asn")
-        time.sleep(1)
-        processor.execute_task("in tab General, select OWNER = 'CEVA'")
+        # processor.execute_task("Test tạo đơn hàng nhận cho tao")
+        steps= [
+            "Đăng nhập vào hệ thống với tài khoản ‘toshiba-huy1’ và password ‘123’",
+            "Chọn Module INBOUND trên navigation bar, sau đó click submenu ASN/Receipt trên thanh điều hướng",
+            "Nhấn nút 'ASN' để chuyển sang màn hình Receipt Detail",
+
+        ]
+        for step in steps:
+            print(f"Executing step: {step}")
+            processor.execute_task(step)
+            time.sleep(1)  # Sleep to simulate time taken for each step
+
         time.sleep(1)
     except Exception as e:
         print(f"An error occurred: {e}")
