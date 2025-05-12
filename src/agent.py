@@ -18,6 +18,7 @@ class AgentProcessor:
         self.model = Model()
         self.selenium_utils = SeleniumUtils()
         self.selenium_utils.connect_driver(url)
+        self.rag_manager = RAGManager()
 
 
     def generate_prompt(self, task, markdown, is_valid, executed_steps=[], last_step=None) -> str:
@@ -42,6 +43,10 @@ class AgentProcessor:
         if task == "":
             print("Empty prompt.")
             return
+        
+        # Retrieve relevant instruction
+
+
 
         # session_id = str(uuid.uuid4())
         current_step = 0
@@ -51,6 +56,7 @@ class AgentProcessor:
         is_valid_step = True
         last_step = None
         accumulated_steps = []
+
 
         while True:
             # Nếu lặp lai TestSteps >5  lần hoặc Error > 5 lần hoặc thực hiện hơn 100 TestSteps thì dừng

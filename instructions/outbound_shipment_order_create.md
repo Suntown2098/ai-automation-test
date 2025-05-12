@@ -7,4 +7,4 @@ Next, on this Shipment Order function screen, the user will create a new shipmen
   - Click on the plus sign (add new LPN) to create a new row (new LPN).
   - Enter all information for the LPN. Required information will be marked with an asterisk (*).
   - Then click the Save function button in the upper right corner of the screen to save the information just entered.
-- Thus, the user has completed the first step of creating a shipment order on the SWM system.
+- Thus, the user has completed the first step of creating a shipment order on the SWM system.mcxcvbb
