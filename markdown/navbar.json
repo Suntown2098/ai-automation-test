@@ -1,0 +1,39 @@
+{
+    "name": "Navbar",
+    "description": "Top navigation structure for Smartlog WMS, including modules INBOUND and OUTBOUND with their dropdown items.",
+    "sections": [
+        {
+            "name": "NAVBAR",
+            "description": "Navigation bar for Smartlog WMS",
+            "elements": [
+                { 
+                    "label": "INBOUND", 
+                    "id": "navbarDropdown-inbound", 
+                    "description": "Parent menu item for inbound logistics operations.", 
+                    "element_type": "dropdown",
+                    "children": [
+                        { "label": "PURCHASE ORDER", "id": "inbound-purchase-order", "description": "Manage purchase orders.", "element_type": "dropdown-item"},
+                        { "label": "ASN/RECEIPT", "id": "inbound-asn-receipt", "description": "Advanced Shipment Notice and Receipt entry.", "element_type": "dropdown-item"},
+                        { "label": "TASK DETAIL", "id": "inbound-task-detail", "description": "Details of inbound operations per task.", "element_type": "dropdown-item"},
+                        { "label": "INBOUND REPORT", "id": "inbound-report", "description": "Reporting dashboard for inbound.", "element_type": "dropdown-item"},
+                        { "label": "ONE VIEW RECEIPT", "id": "inbound-one-view-receipt", "description": "Unified receipt view across all sources.", "element_type": "dropdown-item"},
+                        { "label": "POD INBOUND", "id": "inbound-pod-inbound", "description": "Proof-of-delivery for inbound shipments.", "element_type": "dropdown-item"}
+                    ]
+                },
+                { 
+                    "label": "OUTBOUND", 
+                    "id": "navbarDropdown-outbound", 
+                    "description": "Parent menu item for outbound logistics operations.", 
+                    "element_type": "dropdown",
+                    "children": [
+                        { "label": "OUTBOUND ORDER", "id": "outbound-order", "description": "Manage outbound orders.", "element_type": "dropdown-item"},
+                        { "label": "OUTBOUND REPORT", "id": "outbound-report", "description": "Reporting dashboard for outbound.", "element_type": "dropdown-item"},
+                        { "label": "ONE VIEW OUTBOUND", "id": "outbound-one-view", "description": "Unified outbound view across all sources.", "element_type": "dropdown-item"},
+                        { "label": "POD OUTBOUND", "id": "outbound-pod-outbound", "description": "Proof-of-delivery for outbound shipments.", "element_type": "dropdown-item"}
+                    ]
+                }
+            ]
+        }
+    ]
+  }
+  

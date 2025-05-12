@@ -1,0 +1,31 @@
+{
+    "name": "LoginForm",
+    "description": "Authentication form for Smartlog WMS users, including username, password, and login button.",
+    "sections": [
+      {
+        "name": "Login Section",
+        "description": "Main login form that captures user credentials.",
+        "elements": [
+          {
+            "label": "Username",
+            "id": "input-username",
+            "description": "Input field for the user's login name or email.",
+            "element_type": "input-text"
+          },
+          {
+            "label": "Password",
+            "id": "input-password",
+            "description": "Input field for password entry with masked characters.",
+            "element_type": "input-password"
+          },
+          {
+            "label": "Sign In Button",
+            "id": "btn-login",
+            "description": "Button to trigger login request. Disabled until form is valid.",
+            "element_type": "button"
+          }
+        ]
+      }
+    ]
+  }
+  

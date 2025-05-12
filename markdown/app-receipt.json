@@ -1,0 +1,81 @@
+{
+  "component": "ViewReceiptScreen",
+  "description": "Screen for viewing, searching, and managing inbound receipts in Smartlog WMS.",
+  "sections": [
+    {
+      "name": "Header Filters",
+      "description": "Search filters including toggle, date range and type selector.",
+      "elements": [
+        {
+          "label": "Date Range",
+          "id": "filter-date-range",
+          "description": "Date picker for filtering receipt records.",
+          "element_type": "input-date"
+        },
+        {
+          "label": "Type Date",
+          "id": "filter-type-date",
+          "description": "Dropdown selector for type of date (e.g., CREATE DATE).",
+          "element_type": "dropdown"
+        },
+        {
+          "label": "Search Button",
+          "id": "btn-search",
+          "description": "Triggers the filter action for receipt list.",
+          "element_type": "button"
+        }
+      ]
+    },
+    {
+      "name": "Action Buttons",
+      "description": "Primary and dropdown action buttons for manipulating receipts.",
+      "elements": [
+        { "label": "RECEIVE", "id": "btn-receive", "description": "Trigger receipt action.", "element_type": "button"},
+        {
+          "label": "ACTION DELETED",
+          "id": "dropdown-deleted",
+          "description": "Dropdown for delete actions.",
+          "element_type": "dropdown",
+          "children": [
+            { "label": "DELETE", "id": "btn-delete", "description": "Deletes selected receipts.", "element_type": "dropdown-item"},
+            { "label": "DELETE IMEI", "id": "btn-delete-imei", "description": "Deletes IMEI-specific data.", "element_type": "dropdown-item"}
+          ]
+        },
+        {
+          "label": "ACTION OTHER ASN",
+          "id": "dropdown-other",
+          "description": "Other advanced ASN actions.",
+          "element_type": "dropdown",
+          "children": [
+            { "label": "APPROVE", "id": "btn-approve", "description": "Approves the receipt record.", "element_type": "dropdown-item"},
+            { "label": "SPLIT", "id": "btn-split", "description": "Split current ASN.", "element_type": "dropdown-item"}
+          ]
+        },
+        { "label": "ASN", "id": "btn-asn", "description": "Create new ASN entry.", "element_type": "button"},
+        {
+          "label": "ACTION IMPORT",
+          "id": "dropdown-import",
+          "description": "Import or update ASN via Excel.",
+          "element_type": "dropdown",
+          "children": [
+            { "label": "IMPORT", "id": "btn-import", "description": "Import new ASN via Excel.", "element_type": "dropdown-item"},
+            { "label": "UPLOAD UPDATE", "id": "btn-upload-update", "description": "Upload file to update existing ASNs.", "element_type": "dropdown-item"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Receipt Grid",
+      "description": "Main table displaying receipt records with filters per column.",
+      "elements": [
+        { "label": "CHECKBOX", "id": "grid-checkbox", "description": "Checkbox for selecting rows.", "element_type": "checkbox"},
+        { "label": "RECEIPT NO", "id": "col-receiptno", "description": "Receipt number for tracking.", "element_type": "input-text"},
+        { "label": "RECEIPT KEY", "id": "col-receiptkey", "description": "Unique identifier of receipt.", "element_type": "input-text"},
+        { "label": "STATUS", "id": "col-status", "description": "Current processing status.", "element_type": "dropdown"},
+        { "label": "OWNER", "id": "col-owner", "description": "Owner or client associated with the ASN.", "element_type": "dropdown"},
+        { "label": "TYPE", "id": "col-type", "description": "Type of ASN or receipt.", "element_type": "dropdown"},
+        { "label": "SYNC DATE", "id": "col-sync-date", "description": "Date of last successful sync.", "element_type": "input-date"}
+      ]
+    }
+  ]
+}
