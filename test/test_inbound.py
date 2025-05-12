@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import time
 from src.agent import AgentProcessor
 
@@ -9,7 +13,7 @@ def main():
         processor = AgentProcessor(test_url)
 
         # Test steps
-        processor.execute_task("login with username 'ttc-thao' and password '123'")
+        processor.execute_task("login with username 'tbs-qa' and password '123'")
         time.sleep(1)
         processor.execute_task("go to module inbound and click on view asn/receipt")
         time.sleep(1)
